@@ -1,6 +1,6 @@
 {
   "name": "material-music",
-  "version": "1.0.11",
+  "version": "1.0.12",
   "description": "A material music player for Angular",
   "main": "material-music.umd.js",
   "jsnext:main": "material-music.esm.js",

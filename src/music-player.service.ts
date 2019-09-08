@@ -606,7 +606,7 @@ export class MusicPlayerService {
             }
             const trackEventData: ITrackEvent = {
                 trackId: this.currentTrack,
-                trackProgress: newprogress,
+                trackProgress: ((this.position / this.duration) * 100),
                 trackPosition: this.position,
                 trackDuration: this.duration
             };
