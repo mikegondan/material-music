@@ -18,7 +18,7 @@ export default {
     name: nameLibrary,
     globals: {
         'soundManager': 'soundmanager2',
-        '@angular/core': 'core'
+        '@angular/core': 'ng.core'
     },
     external: [
         'soundmanager2',
