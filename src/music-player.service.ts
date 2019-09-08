@@ -8,19 +8,19 @@ declare const soundManager: any;
 @Injectable()
 export class MusicPlayerService {
 
-    currentTrack: string = null;
+    public currentTrack: string = null;
 
-    repeat: boolean = false;
-    shuffle: boolean = false;
-    autoPlay: boolean = true;
-    isPlaying: boolean = false;
+    public repeat = false;
+    public shuffle = false;
+    public autoPlay = true;
+    public isPlaying = false;
 
-    trackProgress: number = 0;
-    volume: number = 100;
-    position: number;
-    duration: number;
+    public trackProgress = 0;
+    public volume = 100;
+    public position: number;
+    public duration: number;
 
-    playlist: Array<any> = [];
+    public playlist: Array<any> = [];
 
     public musicPlayerEventEmitter: EventEmitter<any> = new EventEmitter();
     public musicPlayerMuteEventEmitter: EventEmitter<any> = new EventEmitter();
@@ -63,7 +63,7 @@ export class MusicPlayerService {
 
                 // Ready to use; soundManager.createSound() etc. can now be called.
                 // Emit event
-                let isSupported = soundManager.ok();
+                const isSupported = soundManager.ok();
                 this.musicPlayerEventEmitter.emit({
                     event: MusicPlayerEventConstants.ANGULAR_PLAYER_READY,
                     data: isSupported
@@ -111,8 +111,8 @@ export class MusicPlayerService {
                  */
                 whileloading: function () {
                     soundManager._writeDebug('sound ' + this.id + ' loading, ' + this.bytesLoaded + ' of ' + this.bytesTotal);
-                    let trackLoaded = ((this.bytesLoaded / this.bytesTotal) * 100);
-                    let musicPlayerService = soundManager.parent;
+                    const trackLoaded = ((this.bytesLoaded / this.bytesTotal) * 100);
+                    const musicPlayerService = soundManager.parent;
                     if (musicPlayerService) {
                         musicPlayerService.musicPlayerEventEmitter.emit({
                             event: MusicPlayerEventConstants.TRACK_LOADED,
@@ -128,24 +128,33 @@ export class MusicPlayerService {
                  */
                 whileplaying: function () {
                     soundManager._writeDebug('sound ' + this.id + ' playing, ' + this.position + ' of ' + this.duration);
-                    let musicPlayerService = soundManager.parent;
+                    const musicPlayerService = soundManager.parent;
 
                     if (musicPlayerService) {
-                        //broadcast current playing track id
+                        // broadcast current playing track id
                         musicPlayerService.currentTrack = this.id;
                         try {
                             musicPlayerService.trackProgress = ((this.position / this.duration) * 100);
+                            musicPlayerService.trackLoaded = ((this.bytesLoaded / this.bytesTotal) * 100);
+                            musicPlayerService.bytesLoaded = this.bytesLoaded;
+                            musicPlayerService.bytesTotal = this.bytesTotal;
                             musicPlayerService.position = this.position;
                             musicPlayerService.duration = this.duration;
                         } catch (error) {
                             musicPlayerService.trackProgress = 0;
+                            musicPlayerService.trackLoaded = 0;
+                            musicPlayerService.bytesLoaded = 0;
+                            musicPlayerService.bytesTotal = 0;
                             musicPlayerService.position = 0;
                             musicPlayerService.duration = 0;
                         }
 
-                        let trackEventData: ITrackEvent = {
+                        const trackEventData = {
                             trackId: musicPlayerService.currentTrack,
                             trackProgress: musicPlayerService.trackProgress,
+                            trackLoaded: musicPlayerService.trackLoaded,
+                            bytesLoaded: this.bytesLoaded,
+                            bytesTotal: this.bytesTotal,
                             trackPosition: this.position,
                             trackDuration: this.duration
                         };
@@ -164,7 +173,7 @@ export class MusicPlayerService {
                     if (this.autoPlay === true) {
                         this.nextTrack();
 
-                        let trackEventData: ITrackEvent = {
+                        const trackEventData: ITrackEvent = {
                             trackId: this.currentTrack,
                             trackProgress: this.trackProgress,
                             trackDuration: 0,
@@ -201,8 +210,8 @@ export class MusicPlayerService {
      * @returns {any}
      */
     currentTrackData() {
-        let trackId = this.getCurrentTrack();
-        let currentKey = MusicPlayerUtils.IsInArray(this.playlist, trackId);
+        const trackId = this.getCurrentTrack();
+        const currentKey = MusicPlayerUtils.IsInArray(this.playlist, trackId);
         return this.playlist[currentKey];
     }
 
@@ -225,7 +234,7 @@ export class MusicPlayerService {
      */
     addToPlaylist(track: any): void {
         this.playlist.push(track);
-        //broadcast playlist
+        // broadcast playlist
         this.musicPlayerEventEmitter.emit({
             event: MusicPlayerEventConstants.PLAYER_PLAYLIST,
             data: this.playlist
@@ -238,21 +247,21 @@ export class MusicPlayerService {
      * @returns {number}
      */
     addTrack(track: any): number {
-        //check if track itself is valid and if its url is playable
+        // check if track itself is valid and if its url is playable
         if (!MusicPlayerUtils.IsTrackValid) {
             return null;
         }
 
-        //check if song already does not exists then add to playlist
-        let inArrayKey: number = MusicPlayerUtils.IsInArray(this.getPlaylist(undefined), track.id);
+        // check if song already does not exists then add to playlist
+        const inArrayKey: number = MusicPlayerUtils.IsInArray(this.getPlaylist(undefined), track.id);
         if (inArrayKey < 0) {
-            //console.warn('song does not exists in playlist:', track);
-            //add to sound manager
+            // console.warn('song does not exists in playlist:', track);
+            // add to sound manager
             soundManager.createSound({
                 id: track.id,
                 url: track.url
             });
-            //add to playlist
+            // add to playlist
             this.addToPlaylist(track);
         }
         return track.id;
@@ -264,17 +273,17 @@ export class MusicPlayerService {
      * @param {number} index
      */
     removeSong(song: any, index: number): void {
-        //if this song is playing stop it
+        // if this song is playing stop it
         if (song === this.currentTrack) {
             this.stop();
         }
-        //unload from soundManager
+        // unload from soundManager
         soundManager.destroySound(song);
 
-        //remove from playlist
+        // remove from playlist
         this.playlist.splice(index, 1);
 
-        //once all done then broadcast
+        // once all done then broadcast
         this.musicPlayerEventEmitter.emit({
             event: MusicPlayerEventConstants.PLAYER_PLAYLIST,
             data: this.playlist
@@ -288,14 +297,14 @@ export class MusicPlayerService {
      */
     initPlayTrack(trackId: string, isResume: boolean): void {
         if (isResume !== true) {
-            //stop and unload currently playing track
+            // stop and unload currently playing track
             this.stop();
-            //set new track as current track
+            // set new track as current track
             this.setCurrentTrack(trackId);
         }
-        //play it
+        // play it
         soundManager.play(trackId);
-        let trackEventData: ITrackEvent = {
+        const trackEventData: ITrackEvent = {
             trackId: this.currentTrack,
             trackProgress: this.trackProgress,
             trackDuration: this.duration,
@@ -306,7 +315,7 @@ export class MusicPlayerService {
             data: trackEventData
         });
 
-        //set as playing
+        // set as playing
         this.isPlaying = true;
         this.musicPlayerEventEmitter.emit({
             event: MusicPlayerEventConstants.MUSIC_IS_PLAYING,
@@ -321,7 +330,7 @@ export class MusicPlayerService {
     play(): void {
         if (!this.isPlaying) {
             let trackToPlay = null;
-            //check if no track loaded, else play loaded track
+            // check if no track loaded, else play loaded track
             if (this.getCurrentTrack() === null) {
                 if (soundManager.soundIDs.length === 0) {
                     return;
@@ -356,11 +365,11 @@ export class MusicPlayerService {
      * Stops audio playback and clears playback status
      */
     stop(): void {
-        //first pause it
+        // first pause it
         soundManager.pause(this.getCurrentTrack());
         this.isPlaying = false;
         this.resetProgress();
-        let trackEventData: ITrackEvent = {
+        const trackEventData: ITrackEvent = {
             trackId: this.currentTrack,
             trackProgress: this.trackProgress,
             trackDuration: 0,
@@ -392,12 +401,12 @@ export class MusicPlayerService {
             return null;
         }
 
-        let currentTrackKey = MusicPlayerUtils.GetIndexByValue(soundManager.soundIDs, this.getCurrentTrack());
-        let nextTrackKey = +currentTrackKey + 1;
+        const currentTrackKey = MusicPlayerUtils.GetIndexByValue(soundManager.soundIDs, this.getCurrentTrack());
+        const nextTrackKey = +currentTrackKey + 1;
         let nextTrack;
 
         if (this.shuffle === true) {
-            //select random track from playlist if shuffle is on
+            // select random track from playlist if shuffle is on
             let randomTrack = soundManager.soundIDs[Math.floor(Math.random() * soundManager.soundIDs.length)];
             let randomTrackKey = MusicPlayerUtils.GetIndexByValue(soundManager.soundIDs, randomTrack);
 
@@ -416,12 +425,12 @@ export class MusicPlayerService {
         if (typeof nextTrack !== 'undefined') {
             this.playTrack(nextTrack);
         } else {
-            //if no next track found
+            // if no next track found
             if (this.repeat === true) {
-                //start first track if repeat is on
+                // start first track if repeat is on
                 this.playTrack(soundManager.soundIDs[0]);
             } else {
-                //breadcase not playing anything
+                // breadcase not playing anything
                 this.isPlaying = false;
                 this.musicPlayerEventEmitter.emit({
                     event: MusicPlayerEventConstants.MUSIC_IS_PLAYING,
@@ -440,9 +449,9 @@ export class MusicPlayerService {
             return null;
         }
 
-        let currentTrackKey = MusicPlayerUtils.GetIndexByValue(soundManager.soundIDs, this.getCurrentTrack());
-        let prevTrackKey = +currentTrackKey - 1;
-        let prevTrack = soundManager.soundIDs[prevTrackKey];
+        const currentTrackKey = MusicPlayerUtils.GetIndexByValue(soundManager.soundIDs, this.getCurrentTrack());
+        const prevTrackKey = +currentTrackKey - 1;
+        const prevTrack = soundManager.soundIDs[prevTrackKey];
 
         if (typeof prevTrack !== 'undefined') {
             this.playTrack(prevTrack);
@@ -540,9 +549,9 @@ export class MusicPlayerService {
      * @param increase
      */
     adjustVolume(increase: boolean) {
-        let changeVolume = (volume: number) => {
+        const changeVolume = (volume: number) => {
             for (let i = 0; i < soundManager.soundIDs.length; i++) {
-                let mySound = soundManager.getSoundById(soundManager.soundIDs[i]);
+                const mySound = soundManager.getSoundById(soundManager.soundIDs[i]);
                 mySound.setVolume(volume);
             }
 
@@ -569,9 +578,9 @@ export class MusicPlayerService {
      * @param value
      */
     adjustVolumeSlider(value: number) {
-        let changeVolume = (volume: number) => {
+        const changeVolume = (volume: number) => {
             for (let i = 0; i < soundManager.soundIDs.length; i++) {
-                let mySound = soundManager.getSoundById(soundManager.soundIDs[i]);
+                const mySound = soundManager.getSoundById(soundManager.soundIDs[i]);
                 mySound.setVolume(volume);
             }
 
@@ -589,13 +598,13 @@ export class MusicPlayerService {
      */
     adjustProgress(value: number) {
         let newprogress: number;
-        let changeProgress = (progress: number) => {
+        const changeProgress = (progress: number) => {
             for (let i = 0; i < soundManager.soundIDs.length; i++) {
-                let mySound = soundManager.getSoundById(soundManager.soundIDs[i]);
+                const mySound = soundManager.getSoundById(soundManager.soundIDs[i]);
                 newprogress = progress;
-                mySound.setPosition(progress)
+                mySound.setPosition(progress);
             }
-            let trackEventData: ITrackEvent = {
+            const trackEventData: ITrackEvent = {
                 trackId: this.currentTrack,
                 trackProgress: newprogress,
                 trackPosition: this.position,
@@ -618,28 +627,28 @@ export class MusicPlayerService {
         this.currentTrack = null;
         this.resetProgress();
 
-        //unload and destroy soundmanager sounds
-        let smIdsLength = soundManager.soundIDs.length;
+        // unload and destroy soundmanager sounds
+        const smIdsLength = soundManager.soundIDs.length;
         MusicPlayerUtils.AsyncLoop({
             length: smIdsLength,
             functionToLoop: (loop: any/*, i: number*/) => {
                 setTimeout(() => {
-                    //custom code
+                    // custom code
                     soundManager.destroySound(soundManager.soundIDs[0]);
-                    //custom code
+                    // custom code
                     loop();
                 }, 0);
             },
             callback: () => {
-                //callback custom code
-                //clear playlist
+                // callback custom code
+                // clear playlist
                 this.playlist = [];
                 this.musicPlayerEventEmitter.emit({
                     event: MusicPlayerEventConstants.PLAYER_PLAYLIST,
                     data: this.playlist
                 });
                 if (callback) {
-                    //callback custom code
+                    // callback custom code
                     callback(true);
                 }
             }
