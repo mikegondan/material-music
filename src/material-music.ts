@@ -21,10 +21,10 @@ export * from './volume-bar.directive';
 export * from './progress-bar.directive';
 
 // Interfaces
-//export * from './itrack-event.interface';
+// export * from './itrack-event.interface';
 
 // Module
-export * from './ngx-soundmanager2plus.module';
+export * from './material-music.module';
 
 // Pipes
 export * from './human-time.pipe';
