@@ -14,7 +14,7 @@
       ]
     },
     "files": [
-      "src/material-music.ts"
+      "./src/material-music.ts"
     ],
     "angularCompilerOptions": {
       "skipTemplateCodegen": true

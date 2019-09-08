@@ -73,13 +73,13 @@ import {MusicPlayerService} from './music-player.service';
         HumanTimePipe
     ]
 })
-export class MaterialMusic {
+export class MaterialMusicModule {
     constructor() {
     }
 
     static forRoot(): ModuleWithProviders {
         return {
-            ngModule: MaterialMusic,
+            ngModule: MaterialMusicModule,
             providers: [
                 MusicPlayerService
             ]

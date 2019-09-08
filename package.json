@@ -1,10 +1,17 @@
 {
   "name": "material-music",
-  "version": "1.0.1",
+  "version": "1.0.4",
   "description": "A material music player for Angular",
-  "main": "index.js",
+  "main": "ngx-soundmanager2plus.umd.js",
+  "jsnext:main": "ngx-soundmanager2plus.esm.js",
+  "module": "ngx-soundmanager2plus.esm.js",
+  "types": "ngx-soundmanager2plus.d.ts",
   "scripts": {
-    "test": "music-test"
+    "copy": "node tools/copy-package.js && node tools/cleanup.js",
+    "bundle": "rimraf dist && rollup -c rollup.config.umd.js && rollup -c rollup.config.esm.js && tsc",
+    "postbundle": "node tools/removecode.js && node tools/copy-source.js",
+    "build": "npm run bundle && npm run copy",
+    "publish": "cd ./dist && npm publish"
   },
   "repository": {
     "type": "git",
