@@ -176,8 +176,8 @@ export class MusicPlayerService {
                         const trackEventData: ITrackEvent = {
                             trackId: this.currentTrack,
                             trackProgress: this.trackProgress,
-                            trackDuration: 0,
-                            trackPosition: 0
+                            trackPosition: this.position,
+                            trackDuration: this.duration
                         };
                         this.musicPlayerTrackEventEmitter.emit({
                             event: MusicPlayerEventConstants.TRACK_ID,
