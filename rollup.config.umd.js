@@ -7,12 +7,18 @@ import {
     PATH_SRC,
     PATH_DIST
 } from './config-library.js';
+
+const globals = {
+    'soundManager': 'soundmanager2',
+    '@angular/core': 'ng.core'
+};
+
 export default {
     input: PATH_SRC + nameLibrary + '.ts',
     name: nameLibrary,
     globals: {
         'soundManager': 'soundmanager2',
-        '@angular/core': '@angular/core'
+        '@angular/core': 'core'
     },
     external: [
         'soundmanager2',
@@ -21,7 +27,9 @@ export default {
     sourcemap:true,
     output: {
         file: PATH_DIST + nameLibrary + ".umd.js",
-        format: 'umd'
+        format: 'umd',
+        globals: globals,
+        name: nameLibrary
     },
     plugins: [
         angular(
