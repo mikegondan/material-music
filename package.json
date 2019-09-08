@@ -1,0 +1,36 @@
+{
+  "name": "material-music",
+  "version": "1.0.0",
+  "description": "A material music player for Angular",
+  "main": "index.js",
+  "scripts": {
+    "test": "music-test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mikegondan/material-music.git"
+  },
+  "keywords": [
+    "material",
+    "music",
+    "service"
+  ],
+  "author": "Mike Gondan",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mikegondan/material-music/issues"
+  },
+  "homepage": "https://github.com/mikegondan/material-music#readme",
+  "dependencies": {
+    "@angular/common": "^8.2.5",
+    "@angular/compiler": "^8.2.5",
+    "@angular/core": "^8.2.5",
+    "@angular/platform-browser": "^8.2.5",
+    "@angular/platform-browser-dynamic": "^8.2.5",
+    "@angular/service-worker": "^8.2.5",
+    "core-js": "^3.2.1",
+    "rxjs": "^6.5.3",
+    "soundmanager2": "^2.97.20170602",
+    "zone.js": "^0.10.2"
+  }
+}
